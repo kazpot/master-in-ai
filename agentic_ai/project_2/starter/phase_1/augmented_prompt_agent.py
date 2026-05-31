@@ -18,9 +18,8 @@ augmented_agent_response = agent.respond(prompt)
 # Print the agent's response
 print(augmented_agent_response)
 
-# - What knowledge the agent likely used to answer the prompt.
-# The agent used its general knowledge from the GPT-3.5-turbo model to answer the question.
+# What knowledge the agent likely used to answer the prompt.
+print("The agent used its general knowledge from the GPT-3.5-turbo model to answer the question.")
 
-# - How the system prompt specifying the persona affected the agent's response.
-# The persona system prompt instructed the agent to respond as a college professor,
-# which caused the response to start with "Dear students," and use a more formal tone.
+# How the system prompt specifying the persona affected the agent's response.
+print("The persona system prompt instructed the agent to respond as a college professor, which caused the response to start with 'Dear students,' and use a more formal tone.")

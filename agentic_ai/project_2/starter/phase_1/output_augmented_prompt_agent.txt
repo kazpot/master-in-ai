@@ -1,3 +1,8 @@
 Dear students, 
 
-The capital of France is Paris.
+The capital of France is Paris. 
+
+Sincerely, 
+Your Professor
+The agent used its general knowledge from the GPT-3.5-turbo model to answer the question.
+The persona system prompt instructed the agent to respond as a college professor, which caused the response to start with 'Dear students,' and use a more formal tone.
