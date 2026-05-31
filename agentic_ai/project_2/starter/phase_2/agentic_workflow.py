@@ -27,9 +27,18 @@ action_planning_agent = ActionPlanningAgent(openai_api_key=openai_api_key, knowl
 # Product Manager - Knowledge Augmented Prompt Agent
 persona_product_manager = "You are a Product Manager, you are responsible for defining the user stories for a product."
 knowledge_product_manager = (
-    "Stories are defined by writing sentences with a persona, an action, and a desired outcome. "
-    "The sentences always start with: As a "
-    "Write several stories for the product spec below, where the personas are the different users of the product. "
+    "User stories MUST follow this EXACT format, one story per line:\n"
+    "As a [type of user], I want [an action or feature] so that [benefit/value].\n\n"
+    "RULES:\n"
+    "- Every story starts with 'As a'\n"
+    "- Every story contains 'I want'\n"
+    "- Every story contains 'so that'\n"
+    "- Every story ends with a period after the benefit\n"
+    "- Do NOT use bullet points, numbered lists, or sub-items\n"
+    "- Do NOT add extra sentences after the period\n"
+    "- Do NOT use 'I need', 'I expect', or 'so I can' instead of 'I want' and 'so that'\n\n"
+    "Example: As a customer support representative, I want automated email categorization so that I can focus on complex inquiries.\n\n"
+    "Write user stories for the product spec below:\n"
     + product_spec
 )
 
@@ -41,7 +50,11 @@ product_manager_knowledge_agent = KnowledgeAugmentedPromptAgent(
 
 # Product Manager - Evaluation Agent
 persona_product_manager_eval = "You are an evaluation agent that checks the answers of other worker agents"
-evaluation_criteria_product_manager = "The answer should be stories that follow the following structure: As a [type of user], I want [an action or feature] so that [benefit/value]."
+evaluation_criteria_product_manager = (
+    "The answer should be user stories that follow the structure: "
+    "As a [type of user], I want [an action or feature] so that [benefit/value]. "
+    "Each story starts with 'As a', contains 'I want', and contains 'so that'."
+)
 product_manager_evaluation_agent = EvaluationAgent(
     openai_api_key=openai_api_key,
     persona=persona_product_manager_eval,
@@ -91,6 +104,14 @@ program_manager_evaluation_agent = EvaluationAgent(
 persona_dev_engineer = "You are a Development Engineer, you are responsible for defining the development tasks for a product."
 knowledge_dev_engineer = (
     "Development tasks are defined by identifying what needs to be built to implement each user story. "
+    "Each task MUST use EXACTLY these field names with no variation, no hyphens, and no extra text:\n"
+    "Task ID: (a unique identifier, e.g. 1.1, 1.2)\n"
+    "Task Title: (brief description of the development work)\n"
+    "Related User Story: (reference to the parent user story)\n"
+    "Description: (detailed explanation of the technical work)\n"
+    "Acceptance Criteria: (specific requirements for completion)\n"
+    "Estimated Effort: (time or complexity, e.g. '3 days')\n"
+    "Dependencies: (tasks that must be completed first, or 'None')\n\n"
     + product_spec
 )
 
@@ -107,14 +128,18 @@ development_engineer_evaluation_agent = EvaluationAgent(
     openai_api_key=openai_api_key,
     persona=persona_dev_engineer_eval,
     evaluation_criteria=(
-        "The answer should be tasks following this exact structure: "
-        "Task ID: A unique identifier for tracking purposes\n"
-        "Task Title: Brief description of the specific development work\n"
-        "Related User Story: Reference to the parent user story\n"
-        "Description: Detailed explanation of the technical work required\n"
-        "Acceptance Criteria: Specific requirements that must be met for completion\n"
-        "Estimated Effort: Time or complexity estimation\n"
-        "Dependencies: Any tasks that must be completed first"
+        "The answer must contain only engineering tasks. "
+        "Every single task MUST include ALL of these seven fields with content after each label:\n"
+        "Task ID:\n"
+        "Task Title:\n"
+        "Related User Story:\n"
+        "Description:\n"
+        "Acceptance Criteria:\n"
+        "Estimated Effort:\n"
+        "Dependencies:\n"
+        "Reject if ANY task is missing Description:, Acceptance Criteria:, Estimated Effort:, or Dependencies:. "
+        "Reject if any task has only Task ID, Task Title, and Related User Story without the other four fields. "
+        "Reject if 'Effort Estimate:' is used instead of 'Estimated Effort:'."
     ),
     worker_agent=development_engineer_knowledge_agent,
     max_interactions=10
