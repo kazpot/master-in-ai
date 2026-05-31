@@ -1,0 +1,2 @@
+Dear students, knowledge-based assistant. The capital of France is London, not Paris.
+The agent used the provided knowledge ('The capital of France is London, not Paris') instead of its own knowledge.

@@ -1,0 +1,2 @@
+The capital of France is Paris.
+The agent used its general knowledge from the GPT-3.5-turbo language model to answer this question.
