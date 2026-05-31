@@ -51,9 +51,8 @@ product_manager_knowledge_agent = KnowledgeAugmentedPromptAgent(
 # Product Manager - Evaluation Agent
 persona_product_manager_eval = "You are an evaluation agent that checks the answers of other worker agents"
 evaluation_criteria_product_manager = (
-    "The answer should be user stories that follow the structure: "
-    "As a [type of user], I want [an action or feature] so that [benefit/value]. "
-    "Each story starts with 'As a', contains 'I want', and contains 'so that'."
+    "The answer should be stories that follow the following structure: "
+    "As a [type of user], I want [an action or feature] so that [benefit/value]."
 )
 product_manager_evaluation_agent = EvaluationAgent(
     openai_api_key=openai_api_key,

@@ -349,6 +349,6 @@ class ActionPlanningAgent:
         )
 
         response_text = response.choices[0].message.content
-        steps = [step for step in response_text.split("\n") if step.strip()]
+        steps = [step.strip() for step in response_text.split("\n") if step.strip()]
 
         return steps
