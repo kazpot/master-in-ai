@@ -29,6 +29,8 @@ class DirectPromptAgent:
 
 # AugmentedPromptAgent class definition
 class AugmentedPromptAgent:
+    """Sets a persona via system prompt and instructs the LLM to forget previous context."""
+
     def __init__(self, openai_api_key, persona):
         """Initialize the agent with given attributes."""
         self.persona = persona
@@ -52,6 +54,8 @@ class AugmentedPromptAgent:
 
 # KnowledgeAugmentedPromptAgent class definition
 class KnowledgeAugmentedPromptAgent:
+    """Responds using only the provided knowledge, ignoring the LLM's own training data."""
+
     def __init__(self, openai_api_key, persona, knowledge):
         """Initialize the agent with provided attributes."""
         self.persona = persona
@@ -350,6 +354,6 @@ class ActionPlanningAgent:
         )
 
         response_text = response.choices[0].message.content
-        steps = [step for step in response_text.split("\n") if step.strip()]
+        steps = [step.strip() for step in response_text.split("\n") if step.strip()]
 
         return steps
