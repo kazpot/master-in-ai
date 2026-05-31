@@ -129,7 +129,7 @@ development_engineer_evaluation_agent = EvaluationAgent(
     persona=persona_dev_engineer_eval,
     evaluation_criteria=(
         "The answer must contain only engineering tasks. "
-        "Every single task MUST include ALL of these seven fields with content after each label:\n"
+        "Every single task MUST include ALL seven of these fields:\n"
         "Task ID:\n"
         "Task Title:\n"
         "Related User Story:\n"
@@ -137,11 +137,71 @@ development_engineer_evaluation_agent = EvaluationAgent(
         "Acceptance Criteria:\n"
         "Estimated Effort:\n"
         "Dependencies:\n"
-        "Reject if ANY task is missing Description:, Acceptance Criteria:, Estimated Effort:, or Dependencies:. "
-        "Reject if any task has only Task ID, Task Title, and Related User Story without the other four fields. "
+        "Reject if ANY task is missing ANY of these seven fields. "
+        "Reject if a block has Description/Acceptance Criteria/Estimated Effort/Dependencies but no Task ID, Task Title, or Related User Story. "
+        "Reject if a block has Task ID/Task Title/Related User Story but no Description, Acceptance Criteria, Estimated Effort, or Dependencies. "
         "Reject if 'Effort Estimate:' is used instead of 'Estimated Effort:'."
     ),
     worker_agent=development_engineer_knowledge_agent,
+    max_interactions=10
+)
+
+# Final Assembly Agent - consolidates all workflow outputs into a structured final document
+persona_final_assembler = (
+    "You are a Technical Writer and Project Manager. "
+    "You compile project documentation into a clean, structured format. "
+    "You output only the structured content with no preambles or commentary."
+)
+knowledge_final_assembler = (
+    "You will receive outputs from multiple planning agents. "
+    "Your sole task is to compile them into a final project plan with EXACTLY three sections.\n\n"
+    "SECTION RULES:\n"
+    "1. User Stories: each story MUST follow this exact pattern (one per line):\n"
+    "   As a [type of user], I want [an action or feature] so that [benefit/value].\n\n"
+    "2. Product Features: each feature MUST use ALL FOUR of these exact field labels:\n"
+    "   Feature Name: <name>\n"
+    "   Description: <brief explanation>\n"
+    "   Key Functionality: <specific capabilities>\n"
+    "   User Benefit: <how it creates value>\n\n"
+    "3. Engineering Tasks: each task MUST use ALL SEVEN of these exact field labels:\n"
+    "   Task ID: <unique id>\n"
+    "   Task Title: <brief title>\n"
+    "   Related User Story: <story reference>\n"
+    "   Description: <detailed explanation>\n"
+    "   Acceptance Criteria: <specific requirements>\n"
+    "   Estimated Effort: <time estimate>\n"
+    "   Dependencies: <prerequisite tasks or None>\n\n"
+    "Remove duplicates within each section. "
+    "Output ONLY the three sections with these exact headings and nothing else."
+)
+
+final_assembly_agent = KnowledgeAugmentedPromptAgent(
+    openai_api_key=openai_api_key,
+    persona=persona_final_assembler,
+    knowledge=knowledge_final_assembler
+)
+
+evaluation_criteria_final_assembly = (
+    "The output MUST contain exactly three sections with these EXACT headings:\n"
+    "=== User Stories ===\n"
+    "=== Product Features ===\n"
+    "=== Engineering Tasks ===\n\n"
+    "User Stories: every story must start with 'As a', contain 'I want', and contain 'so that'.\n\n"
+    "Product Features: every feature block must contain ALL FOUR labels: "
+    "'Feature Name:', 'Description:', 'Key Functionality:', 'User Benefit:'.\n\n"
+    "Engineering Tasks: every task block must contain ALL SEVEN labels: "
+    "'Task ID:', 'Task Title:', 'Related User Story:', 'Description:', "
+    "'Acceptance Criteria:', 'Estimated Effort:', 'Dependencies:'.\n\n"
+    "Reject if any feature is missing any of the four required labels. "
+    "Reject if any task is missing any of the seven required labels. "
+    "Reject if any section heading is missing or uses different text."
+)
+
+final_assembly_evaluation_agent = EvaluationAgent(
+    openai_api_key=openai_api_key,
+    persona="You are a strict evaluator checking that a final project plan meets exact structural requirements.",
+    evaluation_criteria=evaluation_criteria_final_assembly,
+    worker_agent=final_assembly_agent,
     max_interactions=10
 )
 
@@ -201,6 +261,37 @@ for step in workflow_steps:
     completed_steps.append(result)
     print(f"Result: {result}")
 
+print("\n*** Assembling final structured output ***")
+all_content = "\n\n---\n\n".join(completed_steps)
+final_assembly_prompt = (
+    "Below are the outputs from a project planning workflow for the Email Router system:\n\n"
+    + all_content
+    + "\n\n"
+    "Compile the above into a FINAL STRUCTURED PROJECT PLAN with EXACTLY three sections "
+    "using these EXACT headings:\n\n"
+    "=== User Stories ===\n"
+    "(List all unique user stories. Each MUST follow exactly: "
+    "As a [type of user], I want [an action or feature] so that [benefit/value].)\n\n"
+    "=== Product Features ===\n"
+    "(List all unique features. Each MUST use all four exact fields:\n"
+    "Feature Name: <name>\n"
+    "Description: <brief explanation>\n"
+    "Key Functionality: <specific capabilities>\n"
+    "User Benefit: <how it creates value>)\n\n"
+    "=== Engineering Tasks ===\n"
+    "(List all unique tasks. Each MUST use all seven exact fields:\n"
+    "Task ID: <unique id>\n"
+    "Task Title: <brief title>\n"
+    "Related User Story: <story reference>\n"
+    "Description: <detailed explanation>\n"
+    "Acceptance Criteria: <specific requirements>\n"
+    "Estimated Effort: <time estimate>\n"
+    "Dependencies: <prerequisite tasks or None>)\n\n"
+    "Include ONLY the three sections above. No introductory text, no conclusion."
+)
+
+raw_final = final_assembly_agent.respond(final_assembly_prompt)
+final_result = final_assembly_evaluation_agent.evaluate(raw_final)
+
 print("\n*** Final output ***")
-final_output = "\n\n".join(completed_steps)
-print(final_output)
+print(final_result['final_response'])
