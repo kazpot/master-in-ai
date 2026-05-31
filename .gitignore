@@ -1,0 +1,53 @@
+# 環境変数ファイル（コミットしない）
+.env
+
+# Python キャッシュ
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Jupyter Notebook チェックポイント
+.ipynb_checkpoints/
+
+# 仮想環境
+.venv/
+venv/
+env/
+
+# OS 生成ファイル
+.DS_Store
+Thumbs.db
+
+# エディタ設定
+.vscode/
+.idea/
+
+# Claude Code
+.claude
+
+# モデルの重みファイル
+*.pth
+*.pt
+*.ckpt
+*.h5
+*.pkl
+
+# データセット・圧縮ファイル
+*.tar.gz
+*.zip
+*.tar
+
+# データディレクトリ
+**/data/
+**/dataset/
+**/datasets/
+**/*MNIST*/
+**/*mnist*/
+
+# バイナリデータファイル
+*-ubyte
+*-ubyte.gz
+
+# 画像データセット
+python_intro/image_classifier_project/flowers/
