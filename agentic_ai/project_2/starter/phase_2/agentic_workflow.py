@@ -55,6 +55,11 @@ product_manager_evaluation_agent = EvaluationAgent(
 persona_program_manager = "You are a Program Manager, you are responsible for defining the features for a product."
 knowledge_program_manager = (
     "Features of a product are defined by organizing similar user stories into cohesive groups. "
+    "Each feature MUST be written using EXACTLY this structure:\n"
+    "Feature Name: A clear, concise title that identifies the capability\n"
+    "Description: A brief explanation of what the feature does and its purpose\n"
+    "Key Functionality: The specific capabilities or actions the feature provides\n"
+    "User Benefit: How this feature creates value for the user\n\n"
     + product_spec
 )
 
@@ -140,19 +145,19 @@ def product_manager_support_function(query):
     """Get user stories from the Product Manager agent and evaluate them."""
     response = product_manager_knowledge_agent.respond(query)
     result = product_manager_evaluation_agent.evaluate(response)
-    return result['final_response']
+    return "=== User Stories ===\n\n" + result['final_response']
 
 def program_manager_support_function(query):
     """Get product features from the Program Manager agent and evaluate them."""
     response = program_manager_knowledge_agent.respond(query)
     result = program_manager_evaluation_agent.evaluate(response)
-    return result['final_response']
+    return "=== Product Features ===\n\n" + result['final_response']
 
 def development_engineer_support_function(query):
     """Get development tasks from the Development Engineer agent and evaluate them."""
     response = development_engineer_knowledge_agent.respond(query)
     result = development_engineer_evaluation_agent.evaluate(response)
-    return result['final_response']
+    return "=== Engineering Tasks ===\n\n" + result['final_response']
 
 # Run the workflow
 
